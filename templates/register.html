@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Exam Center Buddy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6">
+    <div class="card shadow-lg">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">Register</h2>
+        <form method="POST" action="{{ url_for('register') }}">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" id="username" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" name="name" id="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="roll_number" class="form-label">Roll Number</label>
+            <input type="text" name="roll_number" id="roll_number" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="text" name="phone" id="phone" class="form-control" required>
+          </div>
+          <!-- Exam Center Dropdown -->
+          <div class="mb-3">
+            <label for="exam_center_select" class="form-label">Exam Center</label>
+            <select name="exam_center_select" id="exam_center_select" class="form-select" required>
+              <option value="">-- Select Exam Center (as on your hallticket) --</option>
+              {% for center in centers %}
+                <option value="{{ center.name }}">{{ center.name }}</option>
+              {% endfor %}
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3" id="other_center_div" style="display:none;">
+            <label for="exam_center_other" class="form-label">Enter Exam Center (exactly as on your hallticket)</label>
+            <input type="text" name="exam_center_other" id="exam_center_other" class="form-control">
+          </div>
+          <div class="mb-3">
+            <small class="form-text text-muted">Please enter the exam center exactly as printed on your hallticket.</small>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Register</button>
+        </form>
+        <div class="mt-3 text-center">
+          <a href="{{ url_for('login') }}">Already have an account? Login here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript to toggle "Other" input -->
+<script>
+  document.getElementById('exam_center_select').addEventListener('change', function() {
+    if (this.value === 'other') {
+      document.getElementById('other_center_div').style.display = 'block';
+      document.getElementById('exam_center_other').setAttribute('required', 'required');
+    } else {
+      document.getElementById('other_center_div').style.display = 'none';
+      document.getElementById('exam_center_other').removeAttribute('required');
+    }
+  });
+</script>
+{% endblock %}

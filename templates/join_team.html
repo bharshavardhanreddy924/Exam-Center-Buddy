@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Join Team - Exam Center Teams{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h4>Join an Existing Team</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('join_team') }}">
+                    <div class="mb-3">
+                        <label for="team_code" class="form-label">Team Code</label>
+                        <input type="text" class="form-control" id="team_code" name="team_code" required>
+                        <div class="form-text">Enter the team code shared by the team creator.</div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Join Team</button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

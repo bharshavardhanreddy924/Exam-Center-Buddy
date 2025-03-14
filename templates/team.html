@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Team Details - Exam Center Buddy{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+  <div class="col-lg-8 offset-lg-2">
+    <div class="card shadow-lg">
+      <div class="card-header bg-info text-white">
+        <h3 class="mb-0">Team: {{ team.name }}</h3>
+        <p class="mb-0"><strong>Team Code:</strong> {{ team.code }}</p>
+      </div>
+      <div class="card-body">
+        <h5 class="mb-3">Team Members</h5>
+        {% if team_members %}
+          <div class="row">
+            {% for member in team_members %}
+              <div class="col-md-6 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6 class="card-title">{{ member.name }}</h6>
+                    <p class="card-text">
+                      <strong>Username:</strong> {{ member.username }}<br>
+                      <strong>Roll Number:</strong> {{ member.roll_number }}<br>
+                      <strong>Phone:</strong> {{ member.phone }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p>No team members found.</p>
+        {% endif %}
+        <div class="mt-4 text-center">
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">Back to Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

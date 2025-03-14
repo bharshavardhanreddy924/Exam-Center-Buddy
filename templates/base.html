@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Exam Center Buddy{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <style>
+    :root {
+      --primary-bg: #121212;
+      --secondary-bg: #1e1e1e;
+      --card-bg: #252525;
+      --accent-color: #8c52ff;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --border-color: #333333;
+    }
+    
+    body {
+      background: var(--primary-bg);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background: var(--secondary-bg) !important;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+      padding: 12px 0;
+    }
+    
+    .navbar-brand {
+      font-weight: 600;
+      font-size: 1.4rem;
+      color: var(--accent-color) !important;
+      letter-spacing: 0.5px;
+    }
+    
+    .navbar-brand i {
+      margin-right: 8px;
+    }
+    
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: var(--accent-color) !important;
+    }
+    
+    .container {
+      max-width: 1200px;
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-primary {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+    
+    .btn-primary:hover {
+      background-color: #7b45e8;
+      border-color: #7b45e8;
+    }
+    
+    .btn-outline-primary {
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+    
+    .btn-outline-primary:hover {
+      background-color: var(--accent-color);
+      color: white;
+    }
+    
+    .form-control, .form-select {
+      background-color: #2d2d2d;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 6px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      background-color: #333;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(140, 82, 255, 0.25);
+      color: white;
+    }
+    
+    .alert {
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .alert-success {
+      background-color: rgba(76, 175, 80, 0.15);
+      color: #4CAF50;
+      border-left: 4px solid #4CAF50;
+    }
+    
+    .alert-danger {
+      background-color: rgba(244, 67, 54, 0.15);
+      color: #F44336;
+      border-left: 4px solid #F44336;
+    }
+    
+    .alert-warning {
+      background-color: rgba(255, 193, 7, 0.15);
+      color: #FFC107;
+      border-left: 4px solid #FFC107;
+    }
+    
+    .alert-info {
+      background-color: rgba(33, 150, 243, 0.15);
+      color: #2196F3;
+      border-left: 4px solid #2196F3;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--primary-bg);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      .navbar-nav {
+        padding: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('index') }}">
+        <i class="fas fa-graduation-cap"></i> Exam Center Buddy
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          {% if session.username %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-1"></i> Logout</a></li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt me-1"></i> Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><i class="fas fa-user-plus me-1"></i> Register</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {% if category == 'success' %}
+              <i class="fas fa-check-circle me-2"></i>
+            {% elif category == 'danger' %}
+              <i class="fas fa-exclamation-circle me-2"></i>
+            {% elif category == 'warning' %}
+              <i class="fas fa-exclamation-triangle me-2"></i>
+            {% elif category == 'info' %}
+              <i class="fas fa-info-circle me-2"></i>
+            {% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Add smooth animations to cards
+    document.addEventListener('DOMContentLoaded', function() {
+      const cards = document.querySelectorAll('.card');
+      cards.forEach((card) => {
+        card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+      });
+    });
+  </script>
+</body>
+</html>

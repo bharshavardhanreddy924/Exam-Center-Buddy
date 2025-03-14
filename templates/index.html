@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Exam Center Buddy{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+  <h1 class="display-4">Welcome to Exam Center Buddy</h1>
+  <p class="lead">Connect with fellow students at your exam center!</p>
+  <div class="mt-4">
+    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-2">Login</a>
+    <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg">Register</a>
+  </div>
+</div>
+{% endblock %}
