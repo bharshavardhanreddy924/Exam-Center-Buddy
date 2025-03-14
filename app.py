@@ -1,55 +1,48 @@
+import os
 import re
+import certifi
 import secrets
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_pymongo import PyMongo
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from pymongo import MongoClient
 from bson.objectid import ObjectId
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 
 # MongoDB Configuration
-app.config["MONGO_URI"] = "mongodb://localhost:27017/hallticketapp"
-mongo = PyMongo(app)
+uri = "mongodb+srv://bharshavardhanreddy924:516474Ta@data-dine.5oghq.mongodb.net/?retryWrites=true&w=majority&ssl=true"
+client = MongoClient(uri, tlsCAFile=certifi.where())
 
+db = client['hallticketapp']
+
+# Function to normalize exam center
 def normalize_center(center_str):
-    """
-    Normalize the exam center string by removing symbols,
-    trimming whitespace and converting to uppercase.
-    """
-    normalized = re.sub(r'[^A-Za-z0-9 ]+', '', center_str).strip().upper()
-    return normalized
+    return re.sub(r'[^A-Za-z0-9 ]+', '', center_str).strip().upper()
 
-# Landing page
+# Landing Page
 @app.route('/')
 def index():
     if 'username' in session:
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-# Registration route
+# Registration Route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username    = request.form.get('username')
-        password    = request.form.get('password')
-        name        = request.form.get('name')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        name = request.form.get('name')
         roll_number = request.form.get('roll_number')
-        phone       = request.form.get('phone')
+        phone = request.form.get('phone')
         
-        # Determine exam center from dropdown vs. other
         exam_center_select = request.form.get('exam_center_select')
-        if exam_center_select == 'other':
-            exam_center_raw = request.form.get('exam_center_other')
-        else:
-            exam_center_raw = exam_center_select
-
-        # Normalize the exam center string
+        exam_center_raw = request.form.get('exam_center_other') if exam_center_select == 'other' else exam_center_select
         normalized_center = normalize_center(exam_center_raw)
-
-        # Check if username already exists
-        if mongo.db.users.find_one({'username': username}):
+        
+        if db.users.find_one({'username': username}):
             flash('Username already exists. Please choose another one.', 'danger')
             return redirect(url_for('register'))
         
@@ -60,30 +53,27 @@ def register():
             'roll_number': roll_number,
             'phone': phone,
             'exam_center': normalized_center,
-            'available': False,  # default availability is False
+            'available': False,
             'registered_at': datetime.now()
         }
-        mongo.db.users.insert_one(user_data)
+        db.users.insert_one(user_data)
         
-        # Add exam center if it does not exist
-        if not mongo.db.centers.find_one({'name': normalized_center}):
-            center_data = {'name': normalized_center, 'created_at': datetime.now()}
-            mongo.db.centers.insert_one(center_data)
+        if not db.centers.find_one({'name': normalized_center}):
+            db.centers.insert_one({'name': normalized_center, 'created_at': datetime.now()})
         
         flash('Registration successful! Please login.', 'success')
         return redirect(url_for('login'))
     
-    # Get centers from database for dropdown (if any)
-    centers = list(mongo.db.centers.find())
+    centers = list(db.centers.find())
     return render_template('register.html', centers=centers)
 
-# Login route
+# Login Route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        user = mongo.db.users.find_one({'username': username})
+        user = db.users.find_one({'username': username})
         
         if user and check_password_hash(user['password'], password):
             session['username'] = username
@@ -95,33 +85,32 @@ def login():
     
     return render_template('login.html')
 
-# Logout route
+# Logout Route
 @app.route('/logout')
 def logout():
     session.clear()
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
-# Toggle availability route
+# Toggle Availability Route
 @app.route('/toggle_availability', methods=['POST'])
 def toggle_availability():
     if 'username' not in session:
         return redirect(url_for('login'))
-    user = mongo.db.users.find_one({'username': session['username']})
+    user = db.users.find_one({'username': session['username']})
     new_status = not user.get('available', False)
-    mongo.db.users.update_one({'_id': user['_id']}, {'$set': {'available': new_status}})
+    db.users.update_one({'_id': user['_id']}, {'$set': {'available': new_status}})
     flash(f'Your availability status has been set to {"Available" if new_status else "Not Available"}.', 'success')
     return redirect(url_for('dashboard'))
 
-# Dashboard route (only shows same center students who are available)
+# Dashboard Route
 @app.route('/dashboard')
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    user = mongo.db.users.find_one({'username': session['username']})
-    # Find students at the same exam center (excluding the current user) who are available
-    same_center_students = list(mongo.db.users.find({
+    user = db.users.find_one({'username': session['username']})
+    same_center_students = list(db.users.find({
         'exam_center': user['exam_center'],
         'username': {'$ne': session['username']},
         'available': True
@@ -129,5 +118,7 @@ def dashboard():
     
     return render_template('dashboard.html', user=user, same_center_students=same_center_students)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Deployment Configuration
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
